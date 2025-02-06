@@ -12,7 +12,7 @@
     
         <h1 class="my-4">Add Todo</h1>
         
-        <form action="/todos" method="post">
+        <form id="todoForm" action="/todos" method="post">
 		    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
             <div class="mb-3">
                 <label for="description" class="form-label">Description</label>
@@ -36,13 +36,19 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
     <script>
         $(document).ready(function () {
-        	$('.datepicker').datepicker({
-        	    format: 'yyyy-mm-dd', // Ensure this format matches what is expected on the backend
-        	    autoclose: true, // Close the picker automatically after selection
+            $('.datepicker').datepicker({
+                format: 'yyyy-mm-dd',
+                autoclose: true,
                 todayHighlight: true 
-        	});
+            });
 
+            $('#todoForm').submit(function (event) {
+            	//event.preventDefault();
+                console.log('Form submission triggered');
+                console.log('Description:', $('#description').val());
+                console.log('Target Date:', $('#targetDate').val());
+            });
         });
-    </script>
+    </script>
 </body>
 </html>

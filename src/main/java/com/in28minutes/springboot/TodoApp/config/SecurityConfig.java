@@ -41,34 +41,28 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
-        http.csrf(csrf -> csrf.disable()) // Disable CSRF
+        http.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/signup").permitAll() // Allow access to login and signup
-                .anyRequest().authenticated() // Authenticate other requests
+                .requestMatchers("/login", "/signup", "/css/**", "/js/**").permitAll()
+                .requestMatchers("/todos/**").authenticated()
+                .anyRequest().authenticated() 
+            )
+            .formLogin(withDefaults()
             )
             
 //            form -> form
-//    		.loginPage("/login") // Custom login page
-//            .defaultSuccessUrl("/todos", true) // Redirect on successful login
-//            .failureUrl("/login?error") // Redirect on login failure
+//            .loginPage("/login")
+//            .defaultSuccessUrl("/todos", true)
+//            .failureUrl("/login?error=true")
 //            .permitAll()
-
-            .formLogin(withDefaults()
-            )
+            
             .logout(logout -> logout
-                .logoutRequestMatcher(new AntPathRequestMatcher("/logout")) // Custom logout endpoint
-                .logoutSuccessUrl("/login?logout") // Redirect after logout
-                .permitAll() // Allow logout for all users
+                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                .logoutSuccessUrl("/login?logout=true")
+                .permitAll()
             );
-
-        // Set the custom AuthenticationManager
         http.authenticationManager(authenticationManager);
-        http.sessionManagement(session -> session
-        	    .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
-        	);
-        http.headers().frameOptions().disable();
-
-
+        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)); // Ensure session is created
         return http.build();
     }
 

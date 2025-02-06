@@ -2,6 +2,9 @@ package com.in28minutes.springboot.TodoApp.controller;
 
 import com.in28minutes.springboot.TodoApp.model.User;
 import com.in28minutes.springboot.TodoApp.repository.UserRepository;
+
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -26,8 +29,10 @@ public class LoginController {
     }
 
     @GetMapping("/login")
-    public String login() {
-        return "login";  // Show login page
+    public String login(HttpServletRequest request) {
+        System.out.println("Login page requested: " + request.getRequestURL());
+        System.out.println("navigating to todos");
+        return "redirect:/todos";
     }
 
 //    @PostMapping("/login")

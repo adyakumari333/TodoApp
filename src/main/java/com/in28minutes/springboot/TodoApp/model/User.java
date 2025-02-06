@@ -1,9 +1,13 @@
 package com.in28minutes.springboot.TodoApp.model;
 
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 
@@ -20,6 +24,9 @@ public class User {
     
     @NotEmpty(message = "Password cannot be empty")
     private String password;  // This will be the encrypted password
+    
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Todo> todos;  
 
     // Getters and Setters
     public Long getId() {
@@ -44,6 +51,14 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+    
+    public List<Todo> getTodos() {
+        return todos;
+    }
+
+    public void setTodos(List<Todo> todos) {
+        this.todos = todos;
     }
 }
 

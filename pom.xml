@@ -52,10 +52,10 @@
         <!-- Database Dependencies -->
         
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.33</version>
-        </dependency>
+		    <groupId>mysql</groupId>
+		    <artifactId>mysql-connector-java</artifactId>
+		    <version>8.0.26</version>  <!-- Ensure you have a compatible version -->
+		</dependency>
 
         <!-- JSP Support -->
         <dependency>

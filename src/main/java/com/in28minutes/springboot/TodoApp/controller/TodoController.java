@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
 import com.in28minutes.springboot.TodoApp.model.Todo;
@@ -63,7 +63,29 @@ public class TodoController {
     @PostMapping("/todos")
     public String addTodo(@Valid @ModelAttribute Todo todo, BindingResult bindingResult, 
                           Authentication authentication, Model model) {
+    	//System.out.println(todo.getDescription());
+//        if (bindingResult.hasErrors()) {
+////            model.addAttribute("errors", bindingResult.getFieldErrors().stream()
+////                    .collect(Collectors.toMap(
+////                            error -> error.getField(),
+////                            error -> error.getDefaultMessage()
+////                    )));
+////            return "add-todo";
+//        	System.out.println(bindingResult.hasErrors());
+//        }
+    	
+    	String username = getLoggedinUsername();
+        System.out.println(username);
+        todo.setUsername(username);
+        todo.setId(null);
+        
         if (bindingResult.hasErrors()) {
+            System.out.println("Validation errors detected:");
+
+            bindingResult.getFieldErrors().forEach(error -> {
+                System.out.println("Field: " + error.getField() + " | Error: " + error.getDefaultMessage());
+            });
+
             model.addAttribute("errors", bindingResult.getFieldErrors().stream()
                     .collect(Collectors.toMap(
                             error -> error.getField(),
@@ -73,9 +95,7 @@ public class TodoController {
         }
 
         // Set the username from the authenticated user
-        String username = getLoggedinUsername();
-        todo.setUsername(username);
-
+        
         // Retrieve the user object associated with the logged-in username
         Optional<User> userOptional = userRepository.findByUsername(username);
         if (userOptional.isPresent()) {
@@ -114,9 +134,23 @@ public class TodoController {
     }
 
     @PostMapping("/todos/update/{id}")
-    public String updateTodo(@PathVariable Long id, @Valid @ModelAttribute Todo todo, 
+    public String updateTodo(@PathVariable Long id,Model model, @Valid @ModelAttribute Todo todo, 
                              BindingResult bindingResult, Authentication authentication) {
+//        if (bindingResult.hasErrors()) {
+//            return "edit-todo";
+//        }
         if (bindingResult.hasErrors()) {
+            System.out.println("Validation errors detected:");
+
+            bindingResult.getFieldErrors().forEach(error -> {
+                System.out.println("Field: " + error.getField() + " | Error: " + error.getDefaultMessage());
+            });
+
+            model.addAttribute("errors", bindingResult.getFieldErrors().stream()
+                    .collect(Collectors.toMap(
+                            error -> error.getField(),
+                            error -> error.getDefaultMessage()
+                    )));
             return "edit-todo";
         }
 
@@ -153,9 +187,32 @@ public class TodoController {
         return "redirect:/todos";
     }
 
+//    private String getLoggedinUsername() {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        System.out.println(authentication);
+//        return authentication.getName();
+//    }
+    
     private String getLoggedinUsername() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication.getName();
+        if (authentication == null) {
+            System.out.println("No authentication object found.");
+            return null;
+        }
+
+        System.out.println("Authentication object: " + authentication);
+        System.out.println("Principal: " + authentication.getPrincipal());
+        System.out.println("Authorities: " + authentication.getAuthorities());
+        System.out.println("Is Authenticated: " + authentication.isAuthenticated());
+
+        if (authentication.getPrincipal() instanceof UserDetails) {
+            String username = ((UserDetails) authentication.getPrincipal()).getUsername();
+            System.out.println("Authenticated username: " + username);
+            return username;
+        }
+
+        System.out.println("Authentication principal is not UserDetails.");
+        return authentication.getName(); // This might return "anonymousUser" if not authenticated.
     }
 }
 
